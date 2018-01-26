@@ -1,10 +1,13 @@
 function LeaderFollowerCorrelation
 clearvars; close all; clc;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %Version 1.0 2 January 2018: basic functionality, bug fixes
 %Version 2.0 5 January 2018: computational completion
 %Version 2.1 5 January 2018: data storage improvements
 %Version 3.0 9 January 2018: multi-leadeer follower searching bug fixed 
+%Version 3.1 11 January 2018: detailed commenting, saving feature
 
 %load compiled dataset 
 load('Z:\ENG_BBCancer_Shared\group\0Zach\LeaderCombinedData\EGF(E6)_compiledleaderdata.mat',...
@@ -69,9 +72,10 @@ for well = wells'
                 LeaderUnitV = [tvx tvy]./sqrt(tvx^2+tvy^2);
                 
                 
-                %HERE WE NEED TO IDENTIFY THE CORRECT FOLLOWERS
-                for qualcheck = 1:numleaders
+                %HERE WE NEED TO IDENTIFY THE CORRECT FOLLOWERS SET
+                for qualcheck = 1:numleaders %run through the possible follower sets
                     
+                    %load and quantify data size
                    qualfollowermat = tempFPFollowers{qualcheck,1}; 
                    numfollowers = sum(~isnan(qualfollowermat(:,1)));
                    
@@ -82,13 +86,17 @@ for well = wells'
                        error(errormessage)
                     end
                 
+                    %loop through the followers to determine if there is an
+                    %app. match
                    for follower = 1:numfollowers
                        followerID = qualfollowermat(follower,1);
                        
+                       %if so, YAY!
                        if followerID == leaderID 
                           QUALFOLLOWER = qualcheck;
                            continue
-                       end       
+                       end   
+                       %if not, continue...
                    end
                     
                 end
@@ -99,7 +107,8 @@ for well = wells'
                 %throw an error if no followers are identified
                 if numfollowers<1
                    errormessage = strcat({'CRASH: A LEADER HAS BEEN IDENTIFIED BY USER'},...
-                       num2str(user),{'IN WELL'},num2str(well),{'FRAME'},num2str(frame));
+                       num2str(user),{'IN WELL'},num2str(well),{'FRAME'},num2str(frame),...
+                       {'WITH NO FOLLOWERS!'});
                    error(errormessage)
                 end
                 
@@ -113,8 +122,7 @@ for well = wells'
                     
                     %Verify comparisons are only made for distinct cells in
                     %the complex
-                    
-                    
+                   
                     if followerID == leaderID
                         continue
                     end
@@ -146,4 +154,5 @@ for well = wells'
     end
 end
 
+save('L-F_Correlation.mat','MacroStore');
 end
